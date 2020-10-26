@@ -1,7 +1,7 @@
 import {Entry} from 'kdbxweb'
 import React from 'react'
 import {useCallback} from 'react'
-import SelectionList from '../../UIComponents/SelectionList/SelectionList'
+import SelectionList from '../../../UIComponents/SelectionList/SelectionList'
 
 interface Props {
   entries: Entry[]

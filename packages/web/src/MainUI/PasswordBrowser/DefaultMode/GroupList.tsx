@@ -1,6 +1,6 @@
 import {Group} from 'kdbxweb'
 import React, {useCallback} from 'react'
-import SelectionList from '../../UIComponents/SelectionList/SelectionList'
+import SelectionList from '../../../UIComponents/SelectionList/SelectionList'
 
 interface Props {
   groups: Group[]
