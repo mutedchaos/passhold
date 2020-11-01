@@ -32,6 +32,7 @@ export default function Masked({children, forceUnmasked}: Props) {
   }, [notification])
 
   const toggleReveal = useCallback(() => {
+    setNotification('')
     window.getSelection()?.removeAllRanges()
     setRevealed((x) => !x)
   }, [])
