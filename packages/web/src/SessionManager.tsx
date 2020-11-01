@@ -80,7 +80,9 @@ export function useDB() {
 }
 
 export function useRefreshSession() {
-  const trigger = useContext(sessionContext).triggerActivity
+  const ctx = useContext(sessionContext)
+  if (!ctx) return () => {}
+  const trigger = ctx.triggerActivity
   trigger()
   return trigger
 }
