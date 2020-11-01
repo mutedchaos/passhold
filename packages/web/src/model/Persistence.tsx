@@ -10,6 +10,7 @@ export interface FileInfo {
 interface Ctx {
   files: FileInfo[]
   has(name: string): boolean
+  isEmpty(): boolean
   save(name: string, data: ArrayBuffer): void
   load(name: string): ArrayBuffer
 }
@@ -40,7 +41,9 @@ export function PersistenceProvider({children}: {children: ReactNode}) {
     return loadFromPersistence(filename)
   }, [])
 
-  const value = useMemo(() => ({files, has, save, load}), [files, has, load, save])
+  const isEmpty = useCallback(() => files.length === 0, [files.length])
+
+  const value = useMemo(() => ({files, has, save, load, isEmpty}), [files, has, isEmpty, load, save])
 
   return <persistenceContext.Provider value={value}>{children}</persistenceContext.Provider>
 }

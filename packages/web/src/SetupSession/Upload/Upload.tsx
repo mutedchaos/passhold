@@ -1,5 +1,5 @@
 import {Kdbx} from 'kdbxweb'
-import React, {useCallback, useContext} from 'react'
+import React, {useCallback, useContext, useState} from 'react'
 import {useOverlay} from '../../Overlay'
 import {sessionContext} from '../../SessionManager'
 import Authenticate from '../Authenticate/Authenticate'
@@ -12,36 +12,45 @@ export default function Upload() {
   const {startSession} = useContext(sessionContext)
 
   const handleCloseAuth = useCallback(
-    (file: null | Kdbx) => {
+    (filename: string, db: null | Kdbx) => {
       overlay.pop()
-      if (file) {
-        startSession(file)
+      if (db) {
+        startSession(filename, db)
       }
     },
     [overlay, startSession]
   )
 
-  const handleUpload = useCallback(
-    (file: File, save: boolean) => {
-      const fileDataPromise = file.arrayBuffer()
-
-      if (save) {
-        overlay.push(
-          <FileSaver
-            file={file}
-            data={fileDataPromise}
-            onSave={() => {
-              overlay.pop()
-              handleUpload(file, false)
-            }}
-            onCancel={() => overlay.pop()}
-          />
-        )
-      } else {
-        overlay.push(<Authenticate to={file.name} data={fileDataPromise} onClose={handleCloseAuth} />)
-      }
+  const handleSave = useCallback(
+    (name: string, file: File, data: ArrayBuffer) => {
+      const {done, pop} = overlay.push(
+        <FileSaver
+          file={file}
+          data={data}
+          onSave={() => {
+            pop()
+          }}
+          onCancel={() => pop()}
+        />
+      )
+      return done
     },
-    [handleCloseAuth, overlay]
+    [overlay]
+  )
+
+  const handleUpload = useCallback(
+    (file: File & {name: string}) => {
+      const fileDataPromise = file.arrayBuffer()
+      overlay.push(
+        <Authenticate
+          to={file.name}
+          data={fileDataPromise}
+          onClose={(db) => handleCloseAuth(file.name, db)}
+          onSave={handleSave}
+        />
+      )
+    },
+    [handleCloseAuth, handleSave, overlay]
   )
 
   return <UploadForm onUpload={handleUpload} />

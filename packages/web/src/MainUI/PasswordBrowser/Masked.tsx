@@ -1,5 +1,4 @@
-import {StringProtected} from 'kdbxweb'
-import React, {useCallback, useEffect, useState} from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 
 interface Props {

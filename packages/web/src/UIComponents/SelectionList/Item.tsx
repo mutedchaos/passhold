@@ -9,10 +9,15 @@ interface Props {
 
 const Container = styled.div`
   padding: 20px;
-  background: yellow;
+  margin-bottom: 10px;
   cursor: pointer;
+  transition: background-color 200ms linear;
   &:hover {
-    background: orange;
+    background: #deecf1;
+  }
+  border-bottom: 1px dotted lightgray;
+  &:first-child {
+    border-top: 1px dotted lightgray;
   }
 `
 

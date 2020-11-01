@@ -3,8 +3,10 @@ import React, {useCallback, useContext, useMemo, useState} from 'react'
 import {ReactNode} from 'react'
 
 interface SessionCtx {
-  startSession(database: Kdbx): void
+  startSession(filename: string, database: Kdbx): void
+  end(): void
   db: Kdbx | null
+  filename: string | null
 }
 
 export const sessionContext = React.createContext<SessionCtx>(null as any)
@@ -15,15 +17,19 @@ interface Props {
 }
 
 export default function SessionManager({withSession, withoutSession}: Props) {
-  const [session, setSession] = useState<null | Kdbx>(null)
+  const [session, setSession] = useState<{db: Kdbx | null; filename: string | null}>({db: null, filename: null})
 
-  const children = session ? withSession : withoutSession
+  const children = session.db ? withSession : withoutSession
 
-  const startSession = useCallback<SessionCtx['startSession']>((db) => {
-    setSession(db)
+  const startSession = useCallback<SessionCtx['startSession']>((filename, db) => {
+    setSession({filename, db})
   }, [])
 
-  const value = useMemo<SessionCtx>(() => ({startSession, db: session}), [session, startSession])
+  const end = useCallback(() => {
+    setSession({filename: null, db: null})
+  }, [])
+
+  const value = useMemo<SessionCtx>(() => ({startSession, ...session, end}), [session, end, startSession])
 
   return <sessionContext.Provider value={value}>{children}</sessionContext.Provider>
 }

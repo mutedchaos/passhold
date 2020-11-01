@@ -1,44 +1,37 @@
 import React, {useCallback, useState} from 'react'
+import styled from 'styled-components'
+import {bigButtonCss} from '../../UIComponents/Button'
+import preventDefault from '../../utils/preventDefault'
 
 interface Props {
-  onUpload(file: File, save: boolean): void
+  onUpload(file: File & {name: string}): void
 }
 
+const UploadLabel = styled.label`
+  display: block;
+  ${bigButtonCss}
+
+  input {
+    display: none;
+  }
+`
+
 export default function UploadForm({onUpload}: Props) {
-  const [file, setFile] = useState<null | File>(null)
-  const [save, setSave] = useState(false)
-  const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      if (!file) throw new Error('Internal error')
-      onUpload(file, save)
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files![0]
+      onUpload(file)
     },
-    [file, onUpload, save]
+    [onUpload]
   )
-
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files![0]
-    setFile(file)
-  }, [])
-
-  const handleToggleSave = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSave(e.target.checked)
-  }, [])
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <div>
-          Keepass file
+      <form onSubmit={preventDefault}>
+        <UploadLabel>
+          Upload Keepass Database
           <input type="file" onChange={handleFileChange} />
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" onChange={handleToggleSave} />
-            Save for future use
-          </label>
-        </div>
-        <button disabled={!file}>Open</button>
+        </UploadLabel>
       </form>
     </div>
   )

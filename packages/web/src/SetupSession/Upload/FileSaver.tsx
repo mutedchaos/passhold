@@ -5,7 +5,7 @@ import {persistenceContext} from '../../model/Persistence'
 
 interface Props {
   file: File
-  data: Promise<ArrayBuffer>
+  data: ArrayBuffer
   onSave(): void
   onCancel(): void
 }
@@ -13,18 +13,13 @@ interface Props {
 export default function FileSaver({file, data, onSave, onCancel}: Props) {
   const persistence = useContext(persistenceContext)
 
-  const [loadedFile, setLoadedFile] = useState<null | ArrayBuffer>(null)
   const [overwrite, setOverwrite] = useState(false)
-
-  useEffect(() => {
-    data.then((data) => setLoadedFile(data))
-  }, [data])
 
   const alreadyExists = persistence.has(file.name)
 
   useEffect(() => {
-    if (loadedFile && (!alreadyExists || overwrite)) {
-      persistence.save(file.name, loadedFile)
+    if (!alreadyExists || overwrite) {
+      persistence.save(file.name, data)
       onSave()
     }
   })

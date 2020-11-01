@@ -1,14 +1,14 @@
 import {Entry, Group} from 'kdbxweb'
 import React, {useCallback} from 'react'
 import {useState} from 'react'
+import {useBackButton} from '../../../UIComponents/goBackContext'
 import EntryDetails from './EntryDetails'
 import EntryList from './EntryList'
-import GoBackButton from './GoBackButton'
 import GroupList from './GroupList'
 
 interface Props {
   group: Group
-  onClose(): void
+  onClose: null | (() => void)
 }
 
 export default function GroupDetails({group, onClose}: Props) {
@@ -20,10 +20,17 @@ export default function GroupDetails({group, onClose}: Props) {
     setSelectedEntry(null)
   }, [])
 
+  const skipSelf = group.entries.length === 0 && group.groups.length === 1
+
+  useBackButton(skipSelf || selectedGroup || onClose === null ? null : selectedEntry ? clearSelection : onClose)
+
+  if (skipSelf) {
+    return <GroupDetails group={group.groups[0]} onClose={onClose} />
+  }
+
   if (selectedEntry) {
     return (
       <>
-        <GoBackButton onClick={clearSelection} />
         <EntryDetails entry={selectedEntry} />
       </>
     )
@@ -38,7 +45,6 @@ export default function GroupDetails({group, onClose}: Props) {
 
   return (
     <>
-      <GoBackButton onClick={onClose} />
       <GroupList groups={group.groups} onSelect={setSelectedGroup} />
       <EntryList entries={group.entries} onSelect={setSelectedEntry} />
     </>

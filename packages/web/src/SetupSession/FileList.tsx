@@ -22,14 +22,14 @@ export default function FileList() {
   const handleFileSelection = useCallback(
     (file: FileInfo) => {
       const fileDataPromise = Promise.resolve(persistence.load(file.filename))
-      overlay.push(
+      const {pop} = overlay.push(
         <Authenticate
           to={file.filename}
           data={fileDataPromise}
           onClose={(db) => {
-            overlay.pop()
+            pop()
             if (db) {
-              session.startSession(db)
+              session.startSession(file.filename, db)
             }
           }}
         />

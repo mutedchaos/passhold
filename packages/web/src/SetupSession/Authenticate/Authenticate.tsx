@@ -1,12 +1,23 @@
 import React, {useCallback, useState} from 'react'
 import kdbxweb, {Kdbx} from 'kdbxweb'
 import Loading from '../../Loading'
+import PagePrompt from '../../UIComponents/PagePrompt'
+import {useBackButton} from '../../UIComponents/goBackContext'
+import {BigButton} from '../../UIComponents/Button'
+import styled from 'styled-components'
+import LabeledInput from '../../UIComponents/LabeledInput'
 
 interface Props {
   to: string
   data: Promise<ArrayBuffer>
   onClose(db: null | Kdbx): void
+  onSave?(name: string, file: File, data: ArrayBuffer): Promise<void>
 }
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+`
 
 export default function Authenticate({to, data, onClose}: Props) {
   const [password, setPassword] = useState('')
@@ -14,6 +25,7 @@ export default function Authenticate({to, data, onClose}: Props) {
   const [loading, setLoading] = useState(false)
 
   const handleCancel = useCallback(() => onClose(null), [onClose])
+  useBackButton(handleCancel)
 
   const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), [])
   const handleSubmit = useCallback(
@@ -34,17 +46,15 @@ export default function Authenticate({to, data, onClose}: Props) {
   if (loading) return <Loading />
   return (
     <div>
-      <h1>Authenticate to {to}</h1>
+      <PagePrompt>Authenticate to {to}</PagePrompt>
       <div>{error}</div>
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <div>
-          Password <input type="password" value={password} onChange={handlePasswordChange} autoFocus />
+          <LabeledInput label={'Password'} type="password" value={password} onChange={handlePasswordChange} autoFocus />
         </div>
-        <button>Open</button>
-        <button type="button" onClick={handleCancel}>
-          Cancel
-        </button>
-      </form>
+
+        <BigButton>Open</BigButton>
+      </Form>
     </div>
   )
 }
