@@ -1,31 +1,24 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import styled from 'styled-components'
+import React, {useCallback, useEffect, useMemo, useState} from 'react'
+import CopyButton from './CopyButton'
+import {MaybeMaskedValue} from './MaybeMaskedValue'
 
 interface Props {
   children: string
+  forceUnmasked?: boolean
 }
 
-const Container = styled.span`
-  padding: 5px;
-  border: 1px inset black;
-  min-width: 300px;
-  display: inline-block;
-  margin-right: 10px;
-`
-
-export default function Masked({children}: Props) {
+export default function Masked({children, forceUnmasked}: Props) {
   const [error, setError] = useState('')
-  const [revealed, setRevealed] = useState(false)
+  const [revealed, setRevealed] = useState(forceUnmasked)
   const [notification, setNotification] = useState('')
 
-  const copy = useCallback(async () => {
+  const handleCopied = useCallback(() => {
     try {
-      await navigator.clipboard.writeText(children.toString())
       setNotification('copied')
     } catch (err) {
       setError(err.message)
     }
-  }, [children])
+  }, [])
 
   useEffect(() => {
     let relevant = true
@@ -51,12 +44,16 @@ export default function Masked({children}: Props) {
     }
   }, [containerRef, revealed])
 
+  const style = useMemo(() => ({color: notification ? 'green' : 'inherit'}), [notification])
+
   return (
     <div>
       <div>
-        <Container ref={containerRef}>{notification || (revealed ? children : 'xxxxxxxx')}</Container>
-        <button onClick={toggleReveal}>reveal</button>
-        <button onClick={copy}>copy</button>
+        <MaybeMaskedValue style={style} ref={containerRef}>
+          {notification || (revealed ? children : 'xxxxxxxx')}
+        </MaybeMaskedValue>
+        <CopyButton value={children} onCopied={handleCopied} />
+        {!forceUnmasked && <button onClick={toggleReveal}>reveal</button>}
       </div>
       {error}
     </div>

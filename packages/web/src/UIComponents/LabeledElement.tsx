@@ -16,6 +16,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   margin: 0 30px;
+  margin-bottom: 20px;
 `
 
 export default function LabeledElement({label, children}: Props) {
