@@ -39,13 +39,24 @@ export default function OverlayProvider({children}: Props) {
     return {
       done,
       pop() {
-        setOverlays((old) => old.filter((x) => x.id !== id))
+        setOverlays((old) => {
+          const filtered = old.filter((x) => x.id === id)
+          setImmediate(() => {
+            for (const f of filtered) f.onClose()
+          })
+
+          return old.filter((x) => x.id !== id)
+        })
       },
     }
   }, [])
 
   const pop = useCallback(() => {
-    setOverlays((old) => old.slice(0, -1))
+    setOverlays((old) => {
+      const onClose = old[old.length - 1].onClose
+      setImmediate(onClose)
+      return old.slice(0, -1)
+    })
   }, [])
 
   const value = useMemo<OverlayCtx>(() => ({push, pop}), [push, pop])

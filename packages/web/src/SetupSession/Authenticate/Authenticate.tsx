@@ -11,9 +11,9 @@ import Checkbox from '../../UIComponents/Checkbox'
 interface Props {
   to: string
   data: Promise<ArrayBuffer>
-  allowSave: boolean
+
   onClose(db: null | Kdbx): void
-  onSave?(name: string, file: File, data: ArrayBuffer): Promise<void>
+  onSave?(name: string, data: ArrayBuffer): Promise<boolean>
 }
 
 const Form = styled.form`
@@ -21,10 +21,11 @@ const Form = styled.form`
   flex-direction: column;
 `
 
-export default function Authenticate({to, data, onClose, allowSave}: Props) {
+export default function Authenticate({to, data, onClose, onSave}: Props) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [save, setSave] = useState(false)
 
   const handleCancel = useCallback(() => onClose(null), [onClose])
   useBackButton(handleCancel)
@@ -36,14 +37,20 @@ export default function Authenticate({to, data, onClose, allowSave}: Props) {
       const credentials = new kdbxweb.Credentials(kdbxweb.ProtectedValue.fromString(password), null)
       try {
         setLoading(true)
-        const db = await kdbxweb.Kdbx.load(await data, credentials)
+        const loadedData = await data
+        const db = await kdbxweb.Kdbx.load(loadedData, credentials)
+        if (save && onSave) {
+          if (!(await onSave(to, loadedData))) {      
+            return
+          }
+        }
         onClose(db)
       } catch (err) {
         setError(err.message)
         setLoading(false)
       }
     },
-    [data, onClose, password]
+    [data, onClose, onSave, password, save, to]
   )
   if (loading) return <Loading />
   return (
@@ -54,7 +61,11 @@ export default function Authenticate({to, data, onClose, allowSave}: Props) {
         <div>
           <LabeledInput label={'Password'} type="password" value={password} onChange={handlePasswordChange} autoFocus />
         </div>
-        {allowSave && <Checkbox>Save to browser for future use</Checkbox>}
+        {!!onSave && (
+          <Checkbox checked={save} onChange={setSave}>
+            Save to browser for future use
+          </Checkbox>
+        )}
 
         <BigButton>Open</BigButton>
       </Form>

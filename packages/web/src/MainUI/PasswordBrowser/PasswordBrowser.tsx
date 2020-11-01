@@ -1,11 +1,10 @@
 import {Group} from 'kdbxweb'
 import React, {useCallback, useContext, useState} from 'react'
-import {useOverlay} from '../../Overlay'
 import {sessionContext, useDB} from '../../SessionManager'
+import {useConfirm} from '../../UIComponents/ConfirmPopup'
 import {useBackButton} from '../../UIComponents/goBackContext'
 import GroupDetails from './DefaultMode/GroupDetails'
 import GroupList from './DefaultMode/GroupList'
-import MaybeLogout from './MaybeLogout'
 
 export default function PasswordBrowser() {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null)
@@ -17,19 +16,12 @@ export default function PasswordBrowser() {
 
   const session = useContext(sessionContext)
 
-  const overlay = useOverlay()
-
+  const confirm = useConfirm()
   const maybeLogout = useCallback(async () => {
-    const {pop} = overlay.push(
-      <MaybeLogout
-        onCancel={() => pop()}
-        onLogout={() => {
-          pop()
-          session.end()
-        }}
-      />
-    )
-  }, [overlay, session])
+    if (await confirm('Close the database?')) {
+      session.end()
+    }
+  }, [confirm, session])
 
   useBackButton(maybeLogout)
 

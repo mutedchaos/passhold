@@ -4,22 +4,22 @@ import Loading from '../../Loading'
 import {persistenceContext} from '../../model/Persistence'
 
 interface Props {
-  file: File
+  filename: string
   data: ArrayBuffer
   onSave(): void
   onCancel(): void
 }
 
-export default function FileSaver({file, data, onSave, onCancel}: Props) {
+export default function FileSaver({filename, data, onSave, onCancel}: Props) {
   const persistence = useContext(persistenceContext)
 
   const [overwrite, setOverwrite] = useState(false)
 
-  const alreadyExists = persistence.has(file.name)
+  const alreadyExists = persistence.has(filename)
 
   useEffect(() => {
     if (!alreadyExists || overwrite) {
-      persistence.save(file.name, data)
+      persistence.save(filename, data)
       onSave()
     }
   })
@@ -30,7 +30,7 @@ export default function FileSaver({file, data, onSave, onCancel}: Props) {
   if (!alreadyExists && !overwrite) return <Loading />
   return (
     <div>
-      <h1>{file.name} already exists</h1>
+      <h1>{filename} already exists</h1>
       <p>Overwrite?</p>
       <button onClick={confirmOverwrite}>Yes</button>
       <button type="button" onClick={onCancel}>

@@ -22,18 +22,23 @@ export default function Upload() {
   )
 
   const handleSave = useCallback(
-    (name: string, file: File, data: ArrayBuffer) => {
+    (name: string, data: ArrayBuffer) => {
+      let saved = false
       const {done, pop} = overlay.push(
         <FileSaver
-          file={file}
+          filename={name}
           data={data}
           onSave={() => {
+            saved = true
             pop()
           }}
           onCancel={() => pop()}
         />
       )
-      return done
+
+      return done.then(() => {
+        return saved
+      })
     },
     [overlay]
   )
@@ -43,7 +48,6 @@ export default function Upload() {
       const fileDataPromise = file.arrayBuffer()
       overlay.push(
         <Authenticate
-          allowSave={true}
           to={file.name}
           data={fileDataPromise}
           onClose={(db) => handleCloseAuth(file.name, db)}

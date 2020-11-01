@@ -13,6 +13,7 @@ interface Ctx {
   isEmpty(): boolean
   save(name: string, data: ArrayBuffer): void
   load(name: string): ArrayBuffer
+  delete(name: string): void
 }
 
 export const persistenceContext = createContext<Ctx>(null as any)
@@ -43,7 +44,23 @@ export function PersistenceProvider({children}: {children: ReactNode}) {
 
   const isEmpty = useCallback(() => files.length === 0, [files.length])
 
-  const value = useMemo(() => ({files, has, save, load, isEmpty}), [files, has, isEmpty, load, save])
+  const deleteFile = useCallback(
+    (name: string) => {
+      const newFiles = files.filter((x) => x.filename !== name)
+      unpersist(name, newFiles)
+      setFiles(newFiles)
+    },
+    [files]
+  )
+
+  const value = useMemo(() => ({files, has, save, load, isEmpty, delete: deleteFile}), [
+    deleteFile,
+    files,
+    has,
+    isEmpty,
+    load,
+    save,
+  ])
 
   return <persistenceContext.Provider value={value}>{children}</persistenceContext.Provider>
 }
@@ -54,6 +71,10 @@ function loadInitialPersistence() {
 
 function persist(name: string, data: ArrayBuffer, files: FileInfo[]) {
   localStorage.setItem(subkeyPrefix + name, storeable(data))
+  localStorage.setItem(masterKey, JSON.stringify(files))
+}
+function unpersist(name: string, files: FileInfo[]) {
+  localStorage.removeItem(subkeyPrefix + name)
   localStorage.setItem(masterKey, JSON.stringify(files))
 }
 
