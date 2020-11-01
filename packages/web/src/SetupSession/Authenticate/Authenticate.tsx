@@ -12,7 +12,7 @@ interface Props {
   to: string
   data: Promise<ArrayBuffer>
 
-  onClose(db: null | Kdbx): void
+  onClose(db: null | Kdbx, autoClose: number | false): void
   onSave?(name: string, data: ArrayBuffer): Promise<boolean>
 }
 
@@ -21,13 +21,20 @@ const Form = styled.form`
   flex-direction: column;
 `
 
+const InactivityInput = styled.input`
+  width: 40px;
+  margin-left: 30px;
+`
+
 export default function Authenticate({to, data, onClose, onSave}: Props) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [save, setSave] = useState(false)
+  const [autoClose, setAutoClose] = useState(true)
+  const [autoCloseMinutes, setAutoCloseMinutes] = useState(15)
 
-  const handleCancel = useCallback(() => onClose(null), [onClose])
+  const handleCancel = useCallback(() => onClose(null, false), [onClose])
   useBackButton(handleCancel)
 
   const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value), [])
@@ -40,18 +47,21 @@ export default function Authenticate({to, data, onClose, onSave}: Props) {
         const loadedData = await data
         const db = await kdbxweb.Kdbx.load(loadedData, credentials)
         if (save && onSave) {
-          if (!(await onSave(to, loadedData))) {      
+          if (!(await onSave(to, loadedData))) {
             return
           }
         }
-        onClose(db)
+        onClose(db, autoClose && autoCloseMinutes)
       } catch (err) {
         setError(err.message)
         setLoading(false)
       }
     },
-    [data, onClose, onSave, password, save, to]
+    [autoClose, autoCloseMinutes, data, onClose, onSave, password, save, to]
   )
+  const handleChangeAutoCloseMinutes = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setAutoCloseMinutes(+e.target.value)
+  }, [])
   if (loading) return <Loading />
   return (
     <div>
@@ -66,6 +76,18 @@ export default function Authenticate({to, data, onClose, onSave}: Props) {
             Save to browser for future use
           </Checkbox>
         )}
+        <Checkbox checked={autoClose} onChange={setAutoClose}>
+          Close automatically after inactivity
+        </Checkbox>
+        <div>
+          <InactivityInput
+            disabled={!autoClose}
+            type="number"
+            value={autoCloseMinutes}
+            onChange={handleChangeAutoCloseMinutes}
+          />{' '}
+          minutes
+        </div>
 
         <BigButton>Open</BigButton>
       </Form>

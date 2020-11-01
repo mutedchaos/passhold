@@ -1,6 +1,7 @@
 import {Entry, Group} from 'kdbxweb'
 import React, {useCallback} from 'react'
 import {useState} from 'react'
+import {useRefreshSession} from '../../../SessionManager'
 import {useBackButton} from '../../../UIComponents/goBackContext'
 import EntryDetails from './EntryDetails'
 import EntryList from './EntryList'
@@ -21,7 +22,7 @@ export default function GroupDetails({group, onClose}: Props) {
   }, [])
 
   const skipSelf = group.entries.length === 0 && group.groups.length === 1
-
+  useRefreshSession()
   useBackButton(skipSelf || selectedGroup || onClose === null ? null : selectedEntry ? clearSelection : onClose)
 
   if (skipSelf) {

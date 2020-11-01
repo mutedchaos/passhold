@@ -71,10 +71,10 @@ export default function FileList() {
         <Authenticate
           to={file.filename}
           data={fileDataPromise}
-          onClose={(db) => {
+          onClose={(db, autoClose) => {
             pop()
             if (db) {
-              session.startSession(file.filename, db)
+              session.startSession(file.filename, db, autoClose)
             }
           }}
         />

@@ -1,6 +1,7 @@
 import {Entry, ProtectedValue} from 'kdbxweb'
 import React from 'react'
 import styled from 'styled-components'
+import {useRefreshSession} from '../../../SessionManager'
 import LabeledElement from '../../../UIComponents/LabeledElement'
 import MaybeMasked from '../MaybeMasked'
 
@@ -17,6 +18,8 @@ const handledFields = ['Password', 'UserName', 'Notes']
 export default function EntryDetails({entry}: Props) {
   const password: ProtectedValue = entry.fields.Password! as any
   const username: ProtectedValue = entry.fields.UserName! as any
+
+  useRefreshSession()
 
   return (
     <div>

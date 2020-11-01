@@ -12,10 +12,10 @@ export default function Upload() {
   const {startSession} = useContext(sessionContext)
 
   const handleCloseAuth = useCallback(
-    (filename: string, db: null | Kdbx) => {
+    (filename: string, db: null | Kdbx, autoClose: false | number) => {
       overlay.pop()
       if (db) {
-        startSession(filename, db)
+        startSession(filename, db, autoClose)
       }
     },
     [overlay, startSession]
@@ -50,7 +50,7 @@ export default function Upload() {
         <Authenticate
           to={file.name}
           data={fileDataPromise}
-          onClose={(db) => handleCloseAuth(file.name, db)}
+          onClose={(db, autoClose) => handleCloseAuth(file.name, db, autoClose)}
           onSave={handleSave}
         />
       )

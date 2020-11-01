@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
+import {useRefreshSession} from '../../SessionManager'
 import CopyButton from './CopyButton'
 import {MaybeMaskedValue} from './MaybeMaskedValue'
 
@@ -11,14 +12,16 @@ export default function Masked({children, forceUnmasked}: Props) {
   const [error, setError] = useState('')
   const [revealed, setRevealed] = useState(forceUnmasked)
   const [notification, setNotification] = useState('')
+  const refreshSession = useRefreshSession()
 
   const handleCopied = useCallback(() => {
+    refreshSession()
     try {
       setNotification('copied')
     } catch (err) {
       setError(err.message)
     }
-  }, [])
+  }, [refreshSession])
 
   useEffect(() => {
     let relevant = true
@@ -35,6 +38,7 @@ export default function Masked({children, forceUnmasked}: Props) {
     setNotification('')
     window.getSelection()?.removeAllRanges()
     setRevealed((x) => !x)
+    refreshSession()
   }, [])
 
   const containerRef = React.createRef<HTMLDivElement>()

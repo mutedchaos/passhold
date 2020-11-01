@@ -20,10 +20,12 @@ const Title = styled.span`
 
 const Filename = styled.span`
   font-size: 12px;
+  margin-left: 8px;
 `
 
 export default function Header() {
   const {filename} = useContext(sessionContext) ?? {filename: null}
+
   return (
     <Container>
       <GenericBackButton />
