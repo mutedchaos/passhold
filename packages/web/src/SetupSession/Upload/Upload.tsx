@@ -43,6 +43,7 @@ export default function Upload() {
       const fileDataPromise = file.arrayBuffer()
       overlay.push(
         <Authenticate
+          allowSave={true}
           to={file.name}
           data={fileDataPromise}
           onClose={(db) => handleCloseAuth(file.name, db)}

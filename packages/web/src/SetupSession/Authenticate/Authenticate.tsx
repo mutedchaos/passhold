@@ -6,10 +6,12 @@ import {useBackButton} from '../../UIComponents/goBackContext'
 import {BigButton} from '../../UIComponents/Button'
 import styled from 'styled-components'
 import LabeledInput from '../../UIComponents/LabeledInput'
+import Checkbox from '../../UIComponents/Checkbox'
 
 interface Props {
   to: string
   data: Promise<ArrayBuffer>
+  allowSave: boolean
   onClose(db: null | Kdbx): void
   onSave?(name: string, file: File, data: ArrayBuffer): Promise<void>
 }
@@ -19,7 +21,7 @@ const Form = styled.form`
   flex-direction: column;
 `
 
-export default function Authenticate({to, data, onClose}: Props) {
+export default function Authenticate({to, data, onClose, allowSave}: Props) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -52,6 +54,7 @@ export default function Authenticate({to, data, onClose}: Props) {
         <div>
           <LabeledInput label={'Password'} type="password" value={password} onChange={handlePasswordChange} autoFocus />
         </div>
+        {allowSave && <Checkbox>Save to browser for future use</Checkbox>}
 
         <BigButton>Open</BigButton>
       </Form>

@@ -24,6 +24,7 @@ export default function FileList() {
       const fileDataPromise = Promise.resolve(persistence.load(file.filename))
       const {pop} = overlay.push(
         <Authenticate
+          allowSave={false}
           to={file.filename}
           data={fileDataPromise}
           onClose={(db) => {
