@@ -1,12 +1,13 @@
 {
   "name": "passhold",
   "version": "1.0.0",
-  "description": "",
+  "description": "Readonly keepass webapp",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Tapani Haka <tapani.haka@gmail.com>",
   "license": "ISC",
   "workspaces": {
     "packages": [
